@@ -29,13 +29,13 @@ on:
       fail-on-error:
         description: |
           Logical, should the action error if CRAN checks are not ok?
-        default: "false"
+        default: false
         required: false
         type: boolean
       create-issue:
         description: |
           Logical, create an issue on CRAN failed checks
-        default: "true"
+        default: true
         required: false
         type: boolean
       issue-assignees:
@@ -56,16 +56,15 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+    - name: Checkout
+      uses: actions/checkout@v6
 
-      - name: Check
-        uses: dieghernan/cran-status-check@main
-        with:
-          path: ${{ inputs.path }}
-          package: ${{ inputs.package }}
-          statuses: ${{ inputs.statuses }}
-          fail-on-error: ${{ inputs.fail-on-error }}
-          create-issue: ${{ inputs.create-issue }}
-          issue-assignees: ${{ inputs.issue-assignees }}
-
+    - name: Check
+      uses: dieghernan/cran-status-check@main
+      with:
+        path: ${{ inputs.path }}
+        package: ${{ inputs.package }}
+        statuses: ${{ inputs.statuses }}
+        fail-on-error: ${{ inputs.fail-on-error }}
+        create-issue: ${{ inputs.create-issue }}
+        issue-assignees: ${{ inputs.issue-assignees }}

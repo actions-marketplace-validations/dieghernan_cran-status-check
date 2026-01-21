@@ -13,14 +13,14 @@ a **R** package developer can verify regularly if the package needs attention.
 Create a file named `cran-status-check.yml` on a repo in the usual path for GH
 actions (`.github/workflows`) with the following content:
 
-``` yaml
+```yaml
 name: check-cran-status
 
 on:
   push:
     branches: [main, master]
   schedule:
-    - cron: '0 6 * * 1,4' # Runs at 06:00 on Monday and Thursday, check https://crontab.guru/
+    - cron: "0 6 * * 1,4" # Runs at 06:00 on Monday and Thursday, check https://crontab.guru/
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -41,107 +41,103 @@ jobs:
 
 ### Package inputs
 
--   `path`: Default value `'.'` (root of the repo). Path to the **R** package
-    root, if the package is not at the top level of the repository.
+- `path`: Default value `'.'` (root of the repo). Path to the **R** package
+  root, if the package is not at the top level of the repository.
 
-    ``` yaml
-      - name: Check
-        uses: dieghernan/cran-status-check@v2
-        with:
-          path: "Rpackage"
-    ```
+  ```yaml
+  - name: Check
+    uses: dieghernan/cran-status-check@v2
+    with:
+      path: "Rpackage"
+  ```
 
--   `package`: Default value `''`. Name of the package to check. If provided, it
-    would have priority over the package on the repo defined on `path`. It is
-    useful for creating workflows than can check several packages
+- `package`: Default value `''`. Name of the package to check. If provided, it
+  would have priority over the package on the repo defined on `path`. It is
+  useful for creating workflows than can check several packages
 
-    ``` yaml
+  ```yaml
+  - name: Check dplyr
+    uses: dieghernan/cran-status-check@v2
+    with:
+      package: "dplyr"
 
-      - name: Check dplyr
-        uses: dieghernan/cran-status-check@v2
-        with:
-          package: "dplyr"
+  - name: Check ggplot2
+    uses: dieghernan/cran-status-check@v2
+    with:
+      package: "ggplot2"
+  ```
 
-      - name: Check ggplot2
-        uses: dieghernan/cran-status-check@v2
-        with:
-          package: "ggplot2"    
-    ```
+- `statuses`: Default value `'WARN,ERROR'`. CRAN status to check. This is a
+  comma-separated string of statuses. Allowed statuses are `'NOTE'`, `'WARN'`,
+  and `'ERROR'`.
 
--   `statuses`: Default value `'WARN,ERROR'`. CRAN status to check. This is a
-    comma-separated string of statuses. Allowed statuses are `'NOTE'`, `'WARN'`,
-    and `'ERROR'`.
+  ```yaml
+  - name: Check dplyr
+    uses: dieghernan/cran-status-check@v2
+    with:
+      package: "dplyr"
 
-    ``` yaml
-
-      - name: Check dplyr
-        uses: dieghernan/cran-status-check@v2
-        with:
-          package: "dplyr"
-
-      - name: Check ggplot2
-        uses: dieghernan/cran-status-check@v2
-        with:
-          package: "ggplot2"    
-    ```
+  - name: Check ggplot2
+    uses: dieghernan/cran-status-check@v2
+    with:
+      package: "ggplot2"
+  ```
 
 ### Result reports
 
--   `fail-on-error`: Default value `'false'`. Logical, should the action errors
-    if CRAN checks are not OK? This is useful for ensuring that subsequent steps
-    would be performed even if any of the packages to check throws an error.
+- `fail-on-error`: Default value `false`. Logical, should the action errors
+  if CRAN checks are not OK? This is useful for ensuring that subsequent steps
+  would be performed even if any of the packages to check throws an error.
 
-    ``` yaml
+  ```yaml
+  - name: Check a package not in CRAN
+    uses: dieghernan/cran-status-check@v2
+    with:
+      package: "iamnotincran"
+      fail-on-error: false
 
-      - name: Check a package not in CRAN
-        uses: dieghernan/cran-status-check@v2
-        with:
-          package: "iamnotincran"
-          fail-on-error: "false"
+  - name: Check igoR even if the previous step has failed but stop here
+    uses: dieghernan/cran-status-check@v2
+    with:
+      package: "igoR"
+      statuses: "NOTE,WARN,ERROR"
+      fail-on-error: true
+  ```
 
-      - name: Check igoR even if the previous step has failed but stop here
-        uses: dieghernan/cran-status-check@v2
-        with:
-          package: "igoR"
-          statuses: "NOTE,WARN,ERROR"
-          fail-on-error: "true"
-    ```
+- `create-issue`: Default value `true` Logical, create an issue on CRAN failed
+  checks using
+  [create-issue-from-file](https://github.com/peter-evans/create-issue-from-file)
+  action.
 
--   `create-issue`: Default value `true` Logical, create an issue on CRAN failed
-    checks using
-    [create-issue-from-file](https://github.com/peter-evans/create-issue-from-file)
-    action.
+- `issue-assignees`: Default value `''`. Whom should the issue be assigned to
+  if errors are encountered in the CRAN status checks? This is a
+  comma-separated string of GitHub usernames. If undefined or empty, no
+  assignments are made. Check also
+  [create-issue-from-file](https://github.com/peter-evans/create-issue-from-file)
+  action.
 
--   `issue-assignees`: Default value `''`. Whom should the issue be assigned to
-    if errors are encountered in the CRAN status checks? This is a
-    comma-separated string of GitHub usernames. If undefined or empty, no
-    assignments are made. Check also
-    [create-issue-from-file](https://github.com/peter-evans/create-issue-from-file)
-    action.
-
-    ``` yaml
-
-    -  name: Check igoR and create issue 
-       uses: dieghernan/cran-status-check@v2
-       with: 
-         package: "igoR" 
-         statuses: "NOTE,WARN,ERROR" 
-         fail-on-error: "true"
-         create-issue: "true" 
-         issue-assignees: "dieghernan,johndoe"
-    ```
+  ```yaml
+  - name: Check igoR and create issue
+    uses: dieghernan/cran-status-check@v2
+    with:
+      package: "igoR"
+      statuses: "NOTE,WARN,ERROR"
+      fail-on-error: true
+      create-issue: true
+      issue-assignees: "dieghernan,johndoe"
+  ```
 
 ## Outputs
 
--   The action would produce a report with a summary of the check
+- The action would produce a report with a summary of the check
 
--   If `create-issue: "true"` (the default value) and the action found an error,
-    it would create an issue on the repo and (if provided) it would assign it to
-    the users specified on `issue-assignees`.
+- If `create-issue: true` (the default value) and the action found an error,
+  it would create an issue on the repo and (if provided) it would assign it to
+  the users specified on `issue-assignees`.
 
--   if `fail-on-error: "true"` (not activated by default) the action would fail,
-    and GitHub would send a notification to the repo owner following the
-    standard process of GH Actions.
+- if `fail-on-error: true` (not activated by default) the action would fail,
+  and GitHub would send a notification to the repo owner following the
+  standard process of GH Actions.
 
 ## Derived Work Notice
 
